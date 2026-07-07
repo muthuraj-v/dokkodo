@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>独行道 — Dokkodo | Ukiyo-e Bold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700;800&family=Noto+Serif+JP:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ochre: #d8c9a3; --paper: #e7dcbf; --ink: #17130f; --crimson: #a3271e;
+    --indigo: #253a49; --line: rgba(23,19,15,0.5);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; height:100dvh; background: var(--ochre); color: var(--ink);
+    font-family:'Noto Serif JP', serif; overflow:hidden; }
+  .texture{ position:fixed; inset:0; pointer-events:none; z-index:2; opacity:0.4; mix-blend-mode: multiply; }
+  .stage{ position:relative; width:100%; height:100vh; height:100dvh; display:flex; align-items:center; justify-content:center; padding: 30px; }
+  .frame{ position:relative; width:min(760px,92vw); height:min(640px,84vh);
+    border: 7px solid var(--ink); outline: 2px solid var(--ink); outline-offset: 8px;
+    background: var(--paper); display:flex; align-items:center; justify-content:center; box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
+  .topbar{ position:absolute; top:-2px; left:26px; right:26px; z-index:20; padding-top:16px;
+    display:flex; justify-content:space-between; align-items:flex-start; }
+  .brand .jp{ font-family:'Shippori Mincho', serif; font-weight:800; font-size:19px; letter-spacing:0.1em; }
+  .brand .en{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:500; font-size:9px;
+    letter-spacing:0.26em; color: var(--indigo); text-transform:uppercase; }
+  .clock{ text-align:right; font-family:'Zen Kaku Gothic New', sans-serif; color: var(--indigo); }
+  .clock .today{ font-size:10px; letter-spacing:0.14em; text-transform:uppercase; }
+  .clock .now{ font-size:12px; letter-spacing:0.06em; margin-top:2px; color: var(--crimson); font-weight:700; }
+  .progress-track{ position:absolute; top:-9px; left:26px; right:26px; height:3px; z-index:30; background: rgba(23,19,15,0.15); }
+  .progress-fill{ height:100%; width:0%; background: var(--crimson); }
+  .rail{ position:absolute; bottom:16px; left:0; right:0; z-index:20; display:flex; justify-content:center; align-items:center; gap:7px; }
+  .tick{ width:6px; height:6px; border-radius:0; background: rgba(23,19,15,0.25); cursor:pointer; transition: all .3s ease; transform:rotate(45deg); }
+  .tick.active{ background: var(--crimson); width:6px; height:6px; }
+  .nav-zone{ position:absolute; top:0; bottom:0; width:20%; z-index:15; cursor:pointer; }
+  .nav-zone.left{ left:0; } .nav-zone.right{ right:0; }
+  .arrow{ position:absolute; top:50%; transform:translateY(-50%); z-index:16; color: var(--indigo); opacity:0.5;
+    font-family:'Shippori Mincho', serif; font-weight:800; font-size:26px; pointer-events:none; }
+  .arrow.l{ left:14px; } .arrow.r{ right:14px; }
+  .kanji-watermark{ position:absolute; z-index:0; font-family:'Shippori Mincho', serif; font-weight:800;
+    font-size:min(40vw,360px); line-height:1; color: var(--indigo); opacity:0.06; top:52%; left:50%; transform:translate(-50%,-50%); }
+  .content{ position:relative; z-index:2; text-align:center; padding:0 30px; max-width:560px; }
+  .count{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:700; font-size:12px; color: var(--crimson);
+    letter-spacing:0.24em; margin-bottom:14px; text-transform:uppercase; }
+  .precept-jp{ font-family:'Shippori Mincho', serif; font-weight:800; font-size:clamp(24px,4vw,38px); line-height:1.45;
+    margin:0 0 16px 0; letter-spacing:0.02em; }
+  .precept-en{ font-family:'Shippori Mincho', serif; font-weight:600; font-style:normal; font-size:clamp(16px,2vw,20px);
+    color: var(--indigo); line-height:1.55; margin:0; }
+  .divider{ width:60px; height:3px; background: var(--crimson); margin:24px auto; }
+  .precept-explain{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:400; font-size:clamp(12.5px,1.3vw,14px);
+    color: var(--ink); opacity:0.75; line-height:1.75; margin:18px auto 0 auto; max-width:430px; }
+  .seal{ position:absolute; z-index:6; width:64px; height:64px; top:24px; left:24px; display:flex; align-items:center; justify-content:center;
+    color: var(--paper); background: var(--crimson); font-family:'Shippori Mincho', serif; font-weight:800; font-size:24px;
+    border-radius:3px; transform: rotate(-10deg) scale(0.4); opacity:0; }
+  @keyframes stampIn{ 0%{transform:rotate(-18deg) scale(2.4);opacity:0;} 55%{transform:rotate(-6deg) scale(0.9);opacity:1;}
+    75%{transform:rotate(-11deg) scale(1.08);opacity:1;} 100%{transform:rotate(-10deg) scale(1);opacity:1;} }
+  .seal.stamp{ animation: stampIn 0.6s cubic-bezier(.2,.8,.3,1) forwards; }
+  .fade-in{ animation: fadeUp .7s ease forwards; }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .controls{ position:absolute; bottom:16px; right:24px; z-index:25; display:flex; align-items:center; gap:10px; }
+  .iconbtn{ width:30px; height:30px; border-radius:0; border:2px solid var(--ink); background: var(--paper);
+    color: var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
+    transition: all .2s ease; }
+  .iconbtn:hover{ border-color: var(--crimson); color: var(--crimson); }
+  .iconbtn.active{ background: var(--crimson); border-color: var(--crimson); color: var(--paper); }
+  @media (max-width:640px){
+    .stage{ padding:16px; }
+    .frame{ width:94vw; height:min(88vh,88dvh); border-width:5px; outline-width:2px; outline-offset:5px; }
+    .arrow{ display:none; }
+    .nav-zone{ width:26%; }
+    .topbar{ left:18px; right:18px; padding-top:12px; }
+    .brand .jp{ font-size:15px; }
+    .brand .en{ font-size:8px; letter-spacing:0.18em; }
+    .clock .today{ font-size:8.5px; }
+    .clock .now{ font-size:10.5px; }
+    .progress-track{ left:18px; right:18px; }
+    .content{ padding:0 16px; }
+    .count{ font-size:10px; margin-bottom:10px; }
+    .precept-jp{ font-size:19px; margin-bottom:12px; }
+    .precept-en{ font-size:14px; }
+    .divider{ width:44px; margin:16px auto; }
+    .precept-explain{ font-size:11.5px; max-width:94%; }
+    .seal{ width:42px; height:42px; font-size:16px; top:12px; left:12px; }
+    .kanji-watermark{ font-size:min(56vw,300px); }
+    .rail{ bottom:12px; gap:5px; flex-wrap:wrap; max-width:78%; margin:0 auto; }
+    .tick{ width:5px; height:5px; }
+    .controls{ bottom:12px; right:14px; gap:7px; }
+    .iconbtn{ width:36px; height:36px; font-size:12px; }
+  }
+  @media (max-width:380px){
+    .frame{ border-width:4px; outline-offset:4px; }
+    .precept-jp{ font-size:17px; }
+  }
+  @media (prefers-reduced-motion: reduce){ .fade-in, .seal.stamp{ animation:none !important; } }
+</style>
+</head>
+<body>
+<svg class="texture" width="0" height="0"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/></filter></svg>
+<div class="texture" style="filter:url(#noiseFilter);"></div>
+<div class="stage">
+  <div class="frame">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="topbar">
+      <div class="brand"><div class="jp">獨行道</div><div class="en">Dokkodo &nbsp;·&nbsp; Twenty-One Precepts</div></div>
+      <div class="clock"><div class="today" id="todayDate"></div><div class="now" id="nowTime"></div></div>
+    </div>
+    <div class="nav-zone left" id="zoneLeft"></div>
+    <div class="nav-zone right" id="zoneRight"></div>
+    <div class="arrow l">←</div><div class="arrow r">→</div>
+    <div class="kanji-watermark" id="kanjiWatermark"></div>
+    <div class="seal" id="seal"></div>
+    <div class="content" id="content">
+      <div class="count" id="countTag"></div>
+      <div class="precept-jp" id="jpText"></div>
+      <div class="precept-en" id="enText"></div>
+      <div class="divider"></div>
+      <div class="precept-explain" id="explainText"></div>
+    </div>
+    <div class="rail" id="rail"></div>
+    <div class="controls">
+      <button class="iconbtn" id="speakBtn" title="read aloud">🔊</button>
+      <button class="iconbtn" id="playBtn" title="pause">❚❚</button>
+    </div>
+  </div>
+</div>
+<script src="dokkodo-core.js"></script>
+</body>
+</html>
