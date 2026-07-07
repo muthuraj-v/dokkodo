@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>独行道 — Dokkodo | Sumi Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Serif+JP:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121110; --bg-2: #1a1815; --gold: #cbb178; --gold-dim: #8c7a54;
+    --crimson: #b5453a; --ink: #ece6d8; --line: rgba(203,177,120,0.14);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; height:100dvh; background: var(--bg); color: var(--ink);
+    font-family:'Noto Serif JP', serif; overflow:hidden; }
+  .moon-glow{ position:fixed; inset:0; pointer-events:none; z-index:1;
+    background: radial-gradient(ellipse 700px 500px at 50% 42%, rgba(203,177,120,0.10), transparent 70%); }
+  .grain{ position:fixed; inset:0; pointer-events:none; z-index:5; opacity:0.35; mix-blend-mode: overlay; }
+  .vignette{ position:fixed; inset:0; pointer-events:none; z-index:4;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%); }
+  .stage{ position:relative; width:100%; height:100vh; height:100dvh; display:flex; align-items:center; justify-content:center; }
+  .topbar{ position:fixed; top:0; left:0; right:0; z-index:20; padding:22px 34px 0 34px;
+    display:flex; justify-content:space-between; align-items:flex-start; }
+  .brand .jp{ font-family:'Shippori Mincho', serif; font-weight:700; font-size:20px; letter-spacing:0.12em; color: var(--gold); }
+  .brand .en{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:300; font-size:10px;
+    letter-spacing:0.28em; color: var(--gold-dim); text-transform:uppercase; }
+  .clock{ text-align:right; font-family:'Zen Kaku Gothic New', sans-serif; color: var(--gold-dim); }
+  .clock .today{ font-size:11px; letter-spacing:0.16em; text-transform:uppercase; }
+  .clock .now{ font-size:13px; letter-spacing:0.08em; margin-top:2px; color: var(--crimson); }
+  .progress-track{ position:fixed; top:0; left:0; right:0; height:2px; z-index:30; background: rgba(203,177,120,0.08); }
+  .progress-fill{ height:100%; width:0%; background: var(--crimson); }
+  .rail{ position:fixed; bottom:26px; left:0; right:0; z-index:20; display:flex; justify-content:center; align-items:center; gap:6px; }
+  .tick{ width:5px; height:5px; border-radius:50%; background: rgba(203,177,120,0.25); cursor:pointer; transition: all .35s ease; }
+  .tick.active{ background: var(--crimson); width:16px; border-radius:3px; }
+  .nav-zone{ position:fixed; top:0; bottom:0; width:16%; z-index:15; cursor:pointer; }
+  .nav-zone.left{ left:0; } .nav-zone.right{ right:0; }
+  .arrow{ position:fixed; top:50%; transform:translateY(-50%); z-index:16; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center; color: var(--gold-dim); opacity:0.4;
+    font-family:'Shippori Mincho', serif; font-size:22px; pointer-events:none; }
+  .arrow.l{ left:22px; } .arrow.r{ right:22px; }
+  .scroll-frame{ position:relative; width:min(680px,84vw); height:min(620px,78vh); display:flex; align-items:center; justify-content:center;
+    background: var(--bg-2); border:1px solid var(--line); border-radius:2px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+  .kanji-watermark{ position:absolute; z-index:0; font-family:'Shippori Mincho', serif; font-weight:800;
+    font-size:min(46vw,420px); line-height:1; color: var(--gold); opacity:0.045; top:50%; left:50%; transform:translate(-50%,-52%); }
+  .content{ position:relative; z-index:2; text-align:center; padding:0 18px; max-width:520px; }
+  .count{ font-family:'Shippori Mincho', serif; font-weight:600; font-size:13px; color: var(--crimson); letter-spacing:0.2em; margin-bottom:10px; }
+  .precept-jp{ font-family:'Shippori Mincho', serif; font-weight:700; font-size:clamp(22px,3.6vw,34px); line-height:1.5; margin:0 0 14px 0;
+    letter-spacing:0.04em; color: var(--gold); }
+  .precept-en{ font-family:'Shippori Mincho', serif; font-weight:500; font-style:italic; font-size:clamp(16px,2vw,20px);
+    color: var(--ink); opacity:0.82; line-height:1.6; margin:0; }
+  .divider{ width:34px; height:1px; background: var(--gold-dim); opacity:0.5; margin:22px auto; }
+  .precept-explain{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:300; font-size:clamp(12.5px,1.3vw,14px);
+    color: var(--ink); opacity:0.6; line-height:1.75; margin:18px auto 0 auto; max-width:420px; }
+  .seal{ position:absolute; z-index:6; width:58px; height:58px; top:-6px; right:-18px; display:flex; align-items:center; justify-content:center;
+    color: var(--crimson); font-family:'Shippori Mincho', serif; font-weight:800; font-size:22px; border:2.5px solid var(--crimson);
+    border-radius:4px; transform: rotate(-8deg) scale(0.4); opacity:0; }
+  @keyframes stampIn{ 0%{transform:rotate(-14deg) scale(2.2);opacity:0;} 55%{transform:rotate(-6deg) scale(0.92);opacity:0.9;}
+    75%{transform:rotate(-9deg) scale(1.05);opacity:0.85;} 100%{transform:rotate(-8deg) scale(1);opacity:0.85;} }
+  .seal.stamp{ animation: stampIn 0.6s cubic-bezier(.2,.8,.3,1) forwards; }
+  .fade-in{ animation: fadeUp .7s ease forwards; }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .controls{ position:fixed; bottom:26px; right:32px; z-index:25; display:flex; align-items:center; gap:10px; }
+  .iconbtn{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:transparent;
+    color: var(--gold-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
+    font-family:'Zen Kaku Gothic New', sans-serif; transition: all .25s ease; }
+  .iconbtn:hover{ border-color: var(--crimson); color: var(--crimson); }
+  .iconbtn.active{ background: var(--crimson); border-color: var(--crimson); color: var(--bg); }
+  @media (max-width:640px){
+    .nav-zone{ width:22%; }
+    .arrow{ display:none; }
+    .topbar{ padding:16px 16px 0 16px; }
+    .brand .jp{ font-size:16px; }
+    .brand .en{ font-size:8.5px; letter-spacing:0.18em; }
+    .clock .today{ font-size:9.5px; }
+    .clock .now{ font-size:11px; }
+    .scroll-frame{ width:92vw; height:min(66vh,66dvh); }
+    .content{ padding:0 10px; }
+    .precept-explain{ max-width:92%; }
+    .seal{ width:44px; height:44px; font-size:17px; top:-4px; right:-4px; border-width:2px; }
+    .rail{ bottom: calc(14px + env(safe-area-inset-bottom)); gap:5px; flex-wrap:wrap; max-width:80vw; margin:0 auto; left:0; right:0; }
+    .tick{ width:4px; height:4px; }
+    .tick.active{ width:13px; }
+    .controls{ bottom: calc(56px + env(safe-area-inset-bottom)); right:16px; gap:8px; }
+    .iconbtn{ width:38px; height:38px; font-size:13px; }
+  }
+  @media (max-width:380px){
+    .precept-jp{ font-size:19px; }
+    .scroll-frame{ height:min(60vh,60dvh); }
+  }
+  @media (prefers-reduced-motion: reduce){ .fade-in, .seal.stamp{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="moon-glow"></div>
+<svg class="grain" width="0" height="0"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"/></filter></svg>
+<div class="grain" style="filter:url(#noiseFilter);"></div>
+<div class="vignette"></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="topbar">
+  <div class="brand"><div class="jp">獨行道</div><div class="en">Dokkodo &nbsp;·&nbsp; The Path of Aloneness</div></div>
+  <div class="clock"><div class="today" id="todayDate"></div><div class="now" id="nowTime"></div></div>
+</div>
+<div class="stage">
+  <div class="nav-zone left" id="zoneLeft"></div>
+  <div class="nav-zone right" id="zoneRight"></div>
+  <div class="arrow l">←</div><div class="arrow r">→</div>
+  <div class="scroll-frame">
+    <div class="kanji-watermark" id="kanjiWatermark"></div>
+    <div class="seal" id="seal"></div>
+    <div class="content" id="content">
+      <div class="count" id="countTag"></div>
+      <div class="precept-jp" id="jpText"></div>
+      <div class="divider"></div>
+      <div class="precept-en" id="enText"></div>
+      <div class="precept-explain" id="explainText"></div>
+    </div>
+  </div>
+</div>
+<div class="rail" id="rail"></div>
+<div class="controls">
+  <button class="iconbtn" id="speakBtn" title="read aloud">🔊</button>
+  <button class="iconbtn" id="playBtn" title="pause">❚❚</button>
+</div>
+<script src="dokkodo-core.js"></script>
+</body>
+</html>
