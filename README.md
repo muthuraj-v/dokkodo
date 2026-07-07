@@ -1,8 +1,19 @@
 # 獨行道 — Dokkodo
 
-A single-page, one-precept-at-a-time presentation of Miyamoto Musashi's _Dokkodo_
-("The Path of Aloneness") — the twenty-one personal precepts the swordsman wrote
-shortly before his death in 1645.
+_Dokkodo_ ("The Path of Aloneness") is a short text of twenty-one personal
+precepts — a private code of conduct rather than a treatise on swordsmanship.
+It has no plot, no explanation, just twenty-one blunt lines someone wrote for
+themselves, meant to be read one at a time and sat with, not skimmed.
+
+It was written by Miyamoto Musashi, the 17th-century Japanese swordsman and
+author of _The Book of Five Rings_, who by most accounts never lost a duel in
+over sixty recorded fights. He wrote Dokkodo about a week before he died in
+1645, handing it to a favored student — less a legacy of technique than a
+final accounting of how he'd chosen to live.
+
+This project turns those twenty-one lines into a one-precept-at-a-time page:
+one line on screen, a plain-language explanation underneath, and a handful of
+different visual moods to read it in.
 
 ## Variants
 
