@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>独行道 — Dokkodo | Kakejiku Ink</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Serif+JP:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eae2cd; --ink: #201c17; --ink-soft: #55483a;
+    --seal: #9c2b23; --indigo: #2c3b3f; --gold: #9c8752; --line: rgba(32,28,23,0.16);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; height:100dvh; background: var(--paper); color: var(--ink);
+    font-family:'Noto Serif JP', serif; overflow:hidden; }
+  .grain{ position:fixed; inset:0; pointer-events:none; z-index:5; opacity:0.5; mix-blend-mode: multiply; }
+  .vignette{ position:fixed; inset:0; pointer-events:none; z-index:4;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(28,24,18,0.25) 100%); }
+  .fiber{ position:fixed; inset:0; pointer-events:none; z-index:3;
+    background-image: repeating-linear-gradient(90deg, rgba(32,28,23,0.02) 0px, rgba(32,28,23,0.02) 1px, transparent 1px, transparent 3px); }
+  .stage{ position:relative; width:100%; height:100vh; height:100dvh; display:flex; align-items:center; justify-content:center; }
+  .topbar{ position:fixed; top:0; left:0; right:0; z-index:20; padding:22px 34px 0 34px;
+    display:flex; justify-content:space-between; align-items:flex-start; }
+  .brand .jp{ font-family:'Shippori Mincho', serif; font-weight:700; font-size:20px; letter-spacing:0.12em; }
+  .brand .en{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:300; font-size:10px;
+    letter-spacing:0.28em; color: var(--ink-soft); text-transform:uppercase; }
+  .clock{ text-align:right; font-family:'Zen Kaku Gothic New', sans-serif; color: var(--ink-soft); }
+  .clock .today{ font-size:11px; letter-spacing:0.16em; text-transform:uppercase; }
+  .clock .now{ font-size:13px; letter-spacing:0.08em; margin-top:2px; color: var(--seal); }
+  .progress-track{ position:fixed; top:0; left:0; right:0; height:2px; z-index:30; background: rgba(32,28,23,0.08); }
+  .progress-fill{ height:100%; width:0%; background: var(--seal); }
+  .rail{ position:fixed; bottom:26px; left:0; right:0; z-index:20; display:flex; justify-content:center; align-items:center; gap:6px; }
+  .tick{ width:5px; height:5px; border-radius:50%; background: rgba(32,28,23,0.22); cursor:pointer; transition: all .35s ease; }
+  .tick.active{ background: var(--seal); width:16px; border-radius:3px; }
+  .nav-zone{ position:fixed; top:0; bottom:0; width:16%; z-index:15; cursor:pointer; }
+  .nav-zone.left{ left:0; } .nav-zone.right{ right:0; }
+  .arrow{ position:fixed; top:50%; transform:translateY(-50%); z-index:16; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center; color: var(--ink-soft); opacity:0.35;
+    font-family:'Shippori Mincho', serif; font-size:22px; pointer-events:none; }
+  .arrow.l{ left:22px; } .arrow.r{ right:22px; }
+  .scroll-frame{ position:relative; width:min(680px,84vw); height:min(620px,78vh); display:flex; align-items:center; justify-content:center; }
+  .scroll-frame::before, .scroll-frame::after{ content:""; position:absolute; left:0; right:0; height:14px;
+    background: linear-gradient(180deg, var(--gold), #7c6a3f); border-radius:3px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+  .scroll-frame::before{ top:-22px; } .scroll-frame::after{ bottom:-22px; }
+  .panel{ position:relative; width:100%; height:100%; border-left:1px solid var(--line); border-right:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; }
+  .kanji-watermark{ position:absolute; z-index:0; font-family:'Shippori Mincho', serif; font-weight:800;
+    font-size:min(46vw,420px); line-height:1; color: var(--ink); opacity:0.05; top:50%; left:50%; transform:translate(-50%,-52%); }
+  .content{ position:relative; z-index:2; text-align:center; padding:0 18px; max-width:520px; }
+  .count{ font-family:'Shippori Mincho', serif; font-weight:600; font-size:13px; color: var(--seal); letter-spacing:0.2em; margin-bottom:10px; }
+  .precept-jp{ font-family:'Shippori Mincho', serif; font-weight:700; font-size:clamp(22px,3.6vw,34px); line-height:1.5; margin:0 0 14px 0; letter-spacing:0.04em; }
+  .precept-en{ font-family:'Shippori Mincho', serif; font-weight:500; font-style:italic; font-size:clamp(16px,2vw,20px); color: var(--ink-soft); line-height:1.6; margin:0; }
+  .divider{ width:34px; height:1px; background: var(--ink-soft); opacity:0.4; margin:22px auto; }
+  .precept-explain{ font-family:'Zen Kaku Gothic New', sans-serif; font-weight:300; font-size:clamp(12.5px,1.3vw,14px);
+    color: var(--ink-soft); line-height:1.75; margin:18px auto 0 auto; max-width:420px; opacity:0.85; }
+  .seal{ position:absolute; z-index:6; width:58px; height:58px; top:-6px; right:-18px; display:flex; align-items:center; justify-content:center;
+    color: var(--seal); font-family:'Shippori Mincho', serif; font-weight:800; font-size:22px; border:2.5px solid var(--seal);
+    border-radius:4px; transform: rotate(-8deg) scale(0.4); opacity:0; }
+  @keyframes stampIn{ 0%{transform:rotate(-14deg) scale(2.2);opacity:0;} 55%{transform:rotate(-6deg) scale(0.92);opacity:0.9;}
+    75%{transform:rotate(-9deg) scale(1.05);opacity:0.85;} 100%{transform:rotate(-8deg) scale(1);opacity:0.82;} }
+  .seal.stamp{ animation: stampIn 0.6s cubic-bezier(.2,.8,.3,1) forwards; }
+  .fade-in{ animation: fadeUp .7s ease forwards; }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .controls{ position:fixed; bottom:26px; right:32px; z-index:25; display:flex; align-items:center; gap:10px; }
+  .iconbtn{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:transparent;
+    color: var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
+    font-family:'Zen Kaku Gothic New', sans-serif; transition: all .25s ease; }
+  .iconbtn:hover{ border-color: var(--seal); color: var(--seal); }
+  .iconbtn.active{ background: var(--seal); border-color: var(--seal); color: var(--paper); }
+  @media (max-width:640px){
+    .nav-zone{ width:22%; }
+    .arrow{ display:none; }
+    .topbar{ padding:16px 16px 0 16px; }
+    .brand .jp{ font-size:16px; }
+    .brand .en{ font-size:8.5px; letter-spacing:0.18em; }
+    .clock .today{ font-size:9.5px; }
+    .clock .now{ font-size:11px; }
+    .scroll-frame{ width:92vw; height:min(66vh,66dvh); }
+    .scroll-frame::before, .scroll-frame::after{ height:10px; }
+    .scroll-frame::before{ top:-16px; } .scroll-frame::after{ bottom:-16px; }
+    .content{ padding:0 10px; }
+    .precept-explain{ max-width: 92%; }
+    .seal{ width:44px; height:44px; font-size:17px; top:-4px; right:-4px; border-width:2px; }
+    .rail{ bottom: calc(14px + env(safe-area-inset-bottom)); gap:5px; flex-wrap:wrap; max-width:80vw; margin:0 auto; left:0; right:0; }
+    .tick{ width:4px; height:4px; }
+    .tick.active{ width:13px; }
+    .controls{ bottom: calc(56px + env(safe-area-inset-bottom)); right:16px; gap:8px; }
+    .iconbtn{ width:38px; height:38px; font-size:13px; }
+  }
+  @media (max-width:380px){
+    .precept-jp{ font-size:19px; }
+    .scroll-frame{ height:min(60vh,60dvh); }
+  }
+  @media (prefers-reduced-motion: reduce){ .fade-in, .seal.stamp{ animation:none !important; } }
+</style>
+</head>
+<body>
+<svg class="grain" width="0" height="0"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0"/></filter></svg>
+<div class="grain" style="filter:url(#noiseFilter);"></div>
+<div class="fiber"></div>
+<div class="vignette"></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="topbar">
+  <div class="brand"><div class="jp">獨行道</div><div class="en">Dokkodo &nbsp;·&nbsp; The Path of Aloneness</div></div>
+  <div class="clock"><div class="today" id="todayDate"></div><div class="now" id="nowTime"></div></div>
+</div>
+<div class="stage">
+  <div class="nav-zone left" id="zoneLeft"></div>
+  <div class="nav-zone right" id="zoneRight"></div>
+  <div class="arrow l">←</div><div class="arrow r">→</div>
+  <div class="scroll-frame">
+    <div class="panel">
+      <div class="kanji-watermark" id="kanjiWatermark"></div>
+      <div class="seal" id="seal"></div>
+      <div class="content" id="content">
+        <div class="count" id="countTag"></div>
+        <div class="precept-jp" id="jpText"></div>
+        <div class="divider"></div>
+        <div class="precept-en" id="enText"></div>
+        <div class="precept-explain" id="explainText"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="rail" id="rail"></div>
+<div class="controls">
+  <button class="iconbtn" id="speakBtn" title="read aloud">🔊</button>
+  <button class="iconbtn" id="playBtn" title="pause">❚❚</button>
+</div>
+<script src="dokkodo-core.js"></script>
+</body>
+</html>

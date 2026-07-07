@@ -9,12 +9,12 @@ no build step, no dependencies.
 
 ## Variants
 
-| File                   | Look & feel                                                      |
-| ---------------------- | ---------------------------------------------------------------- |
-| `v1-kakejiku-ink.html` | Washi paper scroll, vermilion hanko seal, warm ink tones         |
-| `v2-sumi-night.html`   | Dark sumi-ink theme, moonlit gold text, crimson accent           |
-| `v3-zen-paper.html`    | Minimal monochrome, quiet book-page layout, no seal or watermark |
-| `v4-ukiyoe-bold.html`  | Bold woodblock-print poster frame with a stamped seal            |
+| File                  | Look & feel                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| `index.html`          | Washi paper scroll, vermilion hanko seal, warm ink tones         |
+| `v2-sumi-night.html`  | Dark sumi-ink theme, moonlit gold text, crimson accent           |
+| `v3-zen-paper.html`   | Minimal monochrome, quiet book-page layout, no seal or watermark |
+| `v4-ukiyoe-bold.html` | Bold woodblock-print poster frame with a stamped seal            |
 
 Open any of them directly in a browser — they all read from the same
 `dokkodo-core.js`, so keep the files in the same folder.
