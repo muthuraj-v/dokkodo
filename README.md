@@ -4,9 +4,6 @@ A single-page, one-precept-at-a-time presentation of Miyamoto Musashi's _Dokkodo
 ("The Path of Aloneness") — the twenty-one personal precepts the swordsman wrote
 shortly before his death in 1645.
 
-Four visual variants of the same experience, one shared script, plain HTML/CSS/JS —
-no build step, no dependencies.
-
 ## Variants
 
 | File                  | Look & feel                                                      |
